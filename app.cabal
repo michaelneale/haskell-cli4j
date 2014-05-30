@@ -20,5 +20,4 @@ executable app
 
   hs-source-dirs:  src
   ghc-options:     -Wall -rtsopts
-  main-is:         Main.hs
-  other-modules:   Models
+  main-is:         Main.hs  
