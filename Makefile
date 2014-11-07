@@ -1,7 +1,12 @@
-install:
+image:
 	docker build -t cli .
 
-shell: install 
-	docker run -v $(shell pwd)/src:/app/src -it cli /bin/bash 
+shell:  image
+	docker run -v $(shell pwd):/app -it cli tmux 
 
+# run this when brand new
+cabal-init:
+	cabal update
+	[ -d .cabal-sandbox ] || cabal sandbox init 
+	LANG=en_US.utf-8 cabal install --only-dependencies
 
