@@ -1,8 +1,11 @@
 FROM mwotton/meanpath-build
 
+RUN echo 42
+
 RUN apt-get update
 #ADD *.cabal /app/
 RUN apt-get install -y tmux make
+RUN apt-get install -y curl python
 
 WORKDIR /app
 
