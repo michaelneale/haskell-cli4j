@@ -56,7 +56,9 @@ getJSON = simpleHttp jenkinsApi
 
 delta :: Hit -> IO ()
 delta h =   
-  print $ fromList (Prelude.map _id (hits h))
+  print $ difference ls ls2 
+  where ls = fromList (Prelude.map _id (hits h))
+        ls2 = fromList (Prelude.map _id (hits h))
   
 
 main :: IO ()
