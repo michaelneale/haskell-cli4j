@@ -7,6 +7,7 @@ import Control.Monad
 import qualified Data.ByteString.Lazy as B
 import Network.HTTP.Conduit (simpleHttp)
 import GHC.Generics
+import Data.HashSet
 
 
 data Hit = 
@@ -53,9 +54,9 @@ getJSON :: IO B.ByteString
 getJSON = simpleHttp jenkinsApi
 --}
 
-difference :: Hit -> IO ()
-difference h =   
-  print $ hits h
+delta :: Hit -> IO ()
+delta h =   
+  print $ fromList (Prelude.map _id (hits h))
   
 
 main :: IO ()
@@ -68,4 +69,4 @@ main = do
  -- our choice. In this case, just print it.
  case d of
   Left err -> putStrLn err
-  Right ps -> difference ps
+  Right ps -> delta ps

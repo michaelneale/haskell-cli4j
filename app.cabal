@@ -16,7 +16,8 @@ executable app
                    time,
                    HTTP, 
                    http-conduit,
-                   bytestring
+                   bytestring,
+                   unordered-containers
 
   hs-source-dirs:  src
   ghc-options:     -Wall -rtsopts
