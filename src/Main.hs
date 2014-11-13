@@ -3,7 +3,6 @@
 import Data.Aeson
 import Data.Text
 import Control.Applicative
-import Control.Monad
 import qualified Data.ByteString.Lazy as B
 import Network.HTTP.Conduit (simpleHttp)
 import GHC.Generics
@@ -54,21 +53,28 @@ getJSON :: IO B.ByteString
 getJSON = simpleHttp jenkinsApi
 --}
 
-delta :: Hit -> IO ()
-delta h =   
-  print $ difference ls ls2 
-  where ls = fromList (Prelude.map _id (hits h))
-        ls2 = fromList (Prelude.map _id (hits h))
+
+
+delta :: Hit -> Hit -> IO ()
+delta earlier later =   
+  print $ difference (extractHits earlier) (extractHits later) 
+
+ 
+extractHits :: Hit -> HashSet Text
+extractHits hitlist = 
+  fromList $ Prelude.map _id (hits hitlist)
   
 
 main :: IO ()
 main = do
  -- Get JSON data and decode it
- d <- (eitherDecode <$> getJSON) :: IO (Either String Hit)
+ earlier <- (eitherDecode <$> getJSON) :: IO (Either String Hit)
+ later <- (eitherDecode <$> getJSON) :: IO (Either String Hit)
  -- If d is Left, the JSON was malformed.
  -- In that case, we report the error.
  -- Otherwise, we perform the operation of
  -- our choice. In this case, just print it.
- case d of
-  Left err -> putStrLn err
-  Right ps -> delta ps
+ case (earlier, later) of  
+  (Right e, Right l) -> delta e l
+  (Left err, _) -> putStrLn err
+  (_, Left err) -> putStrLn err
