@@ -31,11 +31,12 @@ instance FromJSON Hit
 
 	
 
--- this is the jenkins Jobs api - a pre canned response. No auth required.
-jenkinsApi :: String
--- jenkinsApi = "https://gist.githubusercontent.com/michaelneale/6c8f494100e37d33424d/raw/aa09039b180a704629d5c9c844d64c43b511bf06/gistfile1.json"
---jenkinsApi = "http://api.meanpath.com/meanpath_current/_search?q=bgp%3A%2240670%22%20AND%20(%22Default.asp%22%20OR%20meta%3A%22vsettings%22%20OR%20%22var%20Config_VCompare_MaxProducts%22%20OR%20%22volusion.ready%22%20OR%20%22coming%20soon%22%20OR%20%22Thank%20you%20for%20visiting%22%20OR%20%22%5C%2Fv%5C%2Fvspfiles%22%20OR%20%22servertrust.com%22%20OR%20%22Closed%20for%20maintainence%22)&pretty&fields=domain,redirect,domain_ip,redirect_ip,bgp&size=10"
-jenkinsApi = "http://0.0.0.0:8000/test_data.json"
+olderSet :: String
+olderSet = "http://0.0.0.0:8000/test_data.json"
+
+newerSet :: String
+newerSet = "http://0.0.0.0:8000/test_data_new.json"
+
 
 
 -- Move the right brace (}) from one comment to another
@@ -49,15 +50,19 @@ getJSON = B.readFile jsonFile
 
 {--}
 -- Read the remote copy of the JSON file.
-getJSON :: IO B.ByteString
-getJSON = simpleHttp jenkinsApi
+getJSON :: String -> IO B.ByteString
+getJSON url = simpleHttp url
 --}
 
 
 
 delta :: Hit -> Hit -> IO ()
 delta earlier later =   
-  print $ difference (extractHits earlier) (extractHits later) 
+  print $ newadditions 
+    where previous = extractHits earlier
+          newer = extractHits later
+          newadditions = difference newer previous
+          dropoffs = difference previous newer
 
  
 extractHits :: Hit -> HashSet Text
@@ -68,8 +73,8 @@ extractHits hitlist =
 main :: IO ()
 main = do
  -- Get JSON data and decode it
- earlier <- (eitherDecode <$> getJSON) :: IO (Either String Hit)
- later <- (eitherDecode <$> getJSON) :: IO (Either String Hit)
+ earlier <- (eitherDecode <$> getJSON olderSet) :: IO (Either String Hit)
+ later <- (eitherDecode <$> getJSON newerSet) :: IO (Either String Hit)
  -- If d is Left, the JSON was malformed.
  -- In that case, we report the error.
  -- Otherwise, we perform the operation of
